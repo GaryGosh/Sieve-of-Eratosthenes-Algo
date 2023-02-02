@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        text-align: center;
+        background-color: #8ec5fc;
+        background-image: linear-gradient(62deg, #8ec5fc 0%, #e0c3fc 100%);
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      #table {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 20px;
+        width: 980px;
+      }
+      #range {
+        font-size: 14px;
+        border-radius: 6px;
+        line-height: 1.5;
+        padding: 5px 10px;
+        transition: box-shadow 100ms ease-in, border 100ms ease-in,
+          background-color 100ms ease-in;
+        border: 2px solid #dee1e2;
+        color: rgb(14, 14, 16);
+        background: #dee1e2;
+        height: 36px;
+      }
+      #range:hover {
+        border-color: #ccc;
+      }
+      #range:focus {
+        border-color: #9147ff;
+        background: #fff;
+      }
+      #create,
+      #reset {
+        display: inline-block;
+        outline: 0;
+        cursor: pointer;
+        border: none;
+        padding: 0 56px;
+        height: 45px;
+        line-height: 45px;
+        border-radius: 7px;
+        color: white;
+        font-weight: 400;
+        font-size: 16px;
+        box-shadow: 0 4px 14px 0 rgb(0 118 255 / 39%);
+        transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        margin-left: 10px;
+      }
+      #create:hover {
+        background: rgba(0, 118, 255, 0.9);
+        box-shadow: 0 6px 20px rgb(0 118 255 / 23%);
+      }
+      #create {
+        background-color: #0070f3;
+      }
+      #reset {
+        background-color: #f2ef49;
+      }
+      #reset:hover {
+        background: rgba(208, 255, 0, 0.9);
+        box-shadow: 0 6px 20px rgba(242, 255, 0, 0.23);
+      }
+      .cell {
+        min-width: 18px;
+        max-width: 18px;
+        padding: 15px;
+        border: 0.1px solid grey;
+      }
+      .prime {
+        background: #90ee90;
+        transition: 0.4s;
+      }
+      .not-prime {
+        background: #ee9090;
+        transition: 0.4s;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Sieve of Eratosthenes Algo</h2>
+    <input type="text" placeholder="enetr a range" id="range" />
+    <button id="create">Create</button>
+    <button id="reset">Reset</button>
+    <div id="table"></div>
+    <div id="primeWrapper"></div>
+
+    <script>
+      const reset = document.getElementById("reset");
+
+      document.getElementById("create").onclick = function () {
+        var range = document.getElementById("range").value;
+        if (isNaN(range) || range < 1) {
+          document.getElementById("table").innerHTML =
+            "The given value must be a number!";
+        } else {
+          const arr = [];
+          const upperLimit = Math.sqrt(range);
+          const primes = [];
+
+          // adding cells in the view for given range
+          let totalRows = Math.ceil(range / 20);
+          for (let i = 1; i <= range; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.classList.add(i);
+            cell.innerHTML = i;
+            document.getElementById("table").appendChild(cell);
+          }
+
+          for (let i = 1; i < range; i++) {
+            arr.push(true);
+          }
+
+          for (let j = 2; j < upperLimit; j++) {
+            if (arr[j]) {
+              for (let k = j * j; k < range; k += j) {
+                arr[k] = false;
+              }
+            }
+          }
+
+          for (let i = 2; i < range; i++) {
+            if (arr[i]) {
+              primes.push(i);
+            }
+          }
+
+          console.log("arr : ", arr);
+          console.log("PRIMES : ", primes);
+
+          function paintNonPrime() {
+            return new Promise(function (resolve, reject) {
+              setTimeout(function () {
+                for (let i = 1; i <= range; i++) {
+                  if (!primes.includes(i)) {
+                    let el = document.getElementsByClassName(`${i}`);
+                    el = el[0];
+                    setTimeout(() => {
+                      el.classList.add("not-prime");
+                    }, i * 200);
+                  }
+                }
+                resolve();
+              }, 1000);
+            });
+          }
+
+          function PaintPrime() {
+            for (let i = 1; i <= range; i++) {
+              if (primes.includes(i)) {
+                let el = document.getElementsByClassName(`${i}`);
+                el = el[0];
+                setTimeout(() => {
+                  el.classList.add("prime");
+                }, i * 200);
+              }
+            }
+          }
+
+          function printPrimes() {
+            let primeWrapper = document.getElementById("primeWrapper");
+            let primeNums = document.createElement("div");
+            let primeStr = "Prime number by Sieve of Eratosthenes are : ";
+            primes.forEach((el) => {
+              primeStr += `${el}, `;
+            });
+            primeNums.innerHTML = primeStr;
+            primeWrapper.appendChild(primeNums);
+          }
+
+          paintNonPrime().then(PaintPrime).then(printPrimes);
+        }
+      };
+
+      reset.addEventListener("click", () => {
+        document.getElementById("table").innerHTML = "";
+        document.getElementById("primeWrapper").innerHTML = "";
+      });
+    </script>
+  </body>
+</html>
